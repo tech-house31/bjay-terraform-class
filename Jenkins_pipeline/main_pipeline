@@ -1,0 +1,78 @@
+pipeline {
+	agent any
+	tools {
+	    maven "maven4"
+	    jdk "myjdk"
+	}
+
+	stages {
+	    stage('Fetch code') {
+            steps {
+               git branch: 'master', url: 'https://github.com/tech-house31/sampleapplication.git'
+            }
+
+	    }
+
+	    stage('compile'){
+	        steps{
+	           sh 'mvn compile'
+	        }
+
+	    }
+
+	    stage('unit-test') {
+            steps{
+                sh 'mvn test'
+            }
+        }
+        
+        stage('code-review') {
+            steps{
+                sh 'mvn -P metrics pmd:pmd'
+            }
+        }
+        
+        stage('code-coverage') {
+            steps{
+                sh 'mvn verify'
+            }
+        }
+        
+         stage('Checkstyle Analysis'){
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+        
+        stage('build-artifacts') {
+            steps{
+                sh 'mvn install -DskipTests'
+            }
+            
+            post {
+	           success {
+	              echo 'Now Archiving it...'
+	              archiveArtifacts artifacts: '**/target/*.war'
+	           }
+	        }
+        }
+        
+        stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool 'sonar4.8'
+            }
+            steps {
+               withSonarQubeEnv('sonar') {
+                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=sampleapp \
+                   -Dsonar.projectName=sampleapp \
+                   -Dsonar.projectVersion=1.0 \
+                   -Dsonar.sources=src/ \
+                   -Dsonar.java.binaries=target/test-classes/com/devopsdemo/utilities/ \
+                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+              }
+            }
+        }
+	}
+}
