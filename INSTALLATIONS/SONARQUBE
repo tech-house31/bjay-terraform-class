@@ -1,0 +1,16 @@
+    1  hostnamectl set-hostname sonar-server
+    2  exec bash
+    3  clear
+    4  amazon-linux-extras install java-openjdk11
+    5  cd /opt
+    6  wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-8.9.2.46101.zip
+    7  unzip sonarqube-8.9.2.46101.zip 
+    8  clear
+    9  ls
+   10  mv sonarqube-8.9.2.46101 sonar8
+   11  rm -rf sonarqube-8.9.2.46101.zip 
+   12  ls
+   13  useradd sonar
+   14  passwd sonar
+   15  chown -R sonar:sonar /opt/sonar8
+   16  cd /opt/sonar8/bin/linux-x86-64/
