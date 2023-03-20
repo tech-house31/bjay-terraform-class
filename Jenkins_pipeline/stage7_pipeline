@@ -3,82 +3,66 @@ def COLOR_MAP = [
     'FAILURE': 'danger',
 ]
 pipeline {
-	agent any
-	tools {
-	    maven "maven4"
-	    jdk "myjdk"
+    agent any
+    tools {
+	    maven "MAVEN3"
+	    jdk "OracleJDK8"
 	}
 
-	stages {
-	    stage('Fetch code') {
-            steps {
-               git branch: 'master', url: 'https://github.com/tech-house31/sampleapplication.git'
-            }
-
-	    }
-
-	    stage('compile'){
-	        steps{
-	           sh 'mvn compile'
-	        }
-
-	    }
-
-	    stage('unit-test') {
+    stages{
+        stage('Print error'){
             steps{
+                sh 'fake comment'
+            }
+        }
+        stage('Fetch code') {
+          steps{
+              git branch: 'vp-rem', url:'https://github.com/devopshydclub/vprofile-repo.git'
+          }  
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install -DskipTests'
+            }
+            post {
+                success {
+                    echo "Now Archiving."
+                    archiveArtifacts artifacts: '**/*.war'
+                }
+            }
+        }
+        stage('Test'){
+            steps {
                 sh 'mvn test'
             }
+
         }
-        
-        stage('code-review') {
-            steps{
-                sh 'mvn -P metrics pmd:pmd'
-            }
-        }
-        
-        stage('code-coverage') {
-            steps{
-                sh 'mvn verify'
-            }
-        }
-        
-         stage('Checkstyle Analysis'){
+
+        stage('Checkstyle Analysis'){
             steps {
                 sh 'mvn checkstyle:checkstyle'
             }
         }
-        
-        stage('build-artifacts') {
-            steps{
-                sh 'mvn install -DskipTests'
-            }
-            
-            post {
-	           success {
-	              echo 'Now Archiving it...'
-	              archiveArtifacts artifacts: '**/target/*.war'
-	           }
-	        }
-        }
-        
+
         stage('Sonar Analysis') {
             environment {
-                scannerHome = tool 'sonar4.8'
+                scannerHome = tool 'sonar4.7'
             }
             steps {
                withSonarQubeEnv('sonar') {
-                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=sampleapp \
-                   -Dsonar.projectName=sampleapp \
+                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+                   -Dsonar.projectName=vprofile \
                    -Dsonar.projectVersion=1.0 \
                    -Dsonar.sources=src/ \
-                   -Dsonar.java.binaries=target/test-classes/com/devopsdemo/utilities/ \
+                   -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
                    -Dsonar.junit.reportsPath=target/surefire-reports/ \
                    -Dsonar.jacoco.reportsPath=target/jacoco.exec \
                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
               }
             }
         }
-        
+
         stage("Quality Gate") {
             steps {
                 timeout(time: 1, unit: 'HOURS') {
@@ -88,29 +72,28 @@ pipeline {
                 }
             }
         }
-        
+
         stage("UploadArtifact"){
             steps{
                 nexusArtifactUploader(
                   nexusVersion: 'nexus3',
                   protocol: 'http',
-                  nexusUrl: '172.31.87.160:8081',
-                  groupId: 'Dev',
+                  nexusUrl: '172.31.18.28:8081',
+                  groupId: 'QA',
                   version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                  repository: 'sampleapp-repo',
-                  credentialsId: 'Nexuslogin',
+                  repository: 'vprofile-repo',
+                  credentialsId: 'nexuslogin',
                   artifacts: [
-                    [artifactId: 'sampleapp',
+                    [artifactId: 'vproapp',
                      classifier: '',
-                     file: 'target/sampleapp.war',
+                     file: 'target/vprofile-v2.war',
                      type: 'war']
                   ]
                 )
             }
         }
-	}
-	
-	post {
+    }
+    post {
         always {
             echo 'Slack Notifications.'
             slackSend channel: '#jenkinscicd',
@@ -118,4 +101,5 @@ pipeline {
                 message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
         }
     }
+    
 }
