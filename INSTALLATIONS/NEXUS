@@ -1,0 +1,19 @@
+    1  hostnamectl set-hostname nexus-server
+    2  exec bash
+    3  yum install java-1.8* -y
+    4  cd /opt
+    5  wget https://sonatype-download.global.ssl.fastly.net/nexus/3/nexus-3.0.2-02-unix.tar.gz
+    6  ls
+    7  tar -zxvf  nexus-3.0.2-02-unix.tar.gz
+    8  ls
+    9  rm -rf nexus-3.0.2-02-unix.tar.gz 
+   10  mv nexus-3.0.2-02 nexus
+   11  useradd nexus
+   12  passwd nexus 
+   13  chown -R nexus:nexus /opt/nexus
+   14  vi /opt/nexus/bin/nexus.rc
+   15  cat /opt/nexus/bin/nexus.rc
+   16  ls /opt/nexus/bin
+   17  sudo ln -s /opt/nexus/bin/nexus /etc/init.d/nexus
+   18  su - nexus
+   19  history
