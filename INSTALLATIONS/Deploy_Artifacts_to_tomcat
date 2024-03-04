@@ -1,0 +1,32 @@
+01..........vi pom.xml
+<plugin>
+			<groupId>org.apache.tomcat.maven</groupId>
+			<artifactId>tomcat7-maven-plugin</artifactId>
+			<version>2.2</version>
+	  	<configuration>
+   		<url>http://localhost:8080/manager/text</url>
+   		<server>TomcatServer</server>
+   		<path>/helloworld-webapp</path>
+		  </configuration>
+  </plugin>
+
+
+02.......create settings.xml for credentials
+<settings ...>
+ 	<servers>
+
+ 		<server>
+ 			<id>TomcatServer</id>
+ 			<username>admin</username>
+ 			<password>password</password>
+ 		</server>
+
+ 	</servers>
+ </settings>
+
+
+
+
+03. Build and the project on tomcat
+ ```sh
+    mvn tomcat7:deploy
