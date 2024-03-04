@@ -1,9 +1,12 @@
+    00.. https://www.jenkins.io/doc/book/installing/linux/
     1  hostnamectl set-hostname jenkins-server
     2  exec bash
     3   yum update -y
+    0  yum list | grep openjdk
+    0  amazon-linux-extras
     4  amazon-linux-extras install java-openjdk11
     5  sudo wget -O /etc/yum.repos.d/jenkins.repo     https://pkg.jenkins.io/redhat-stable/jenkins.repo
-    6  sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+    6  sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
     7  sudo yum upgrade
     8  sudo yum install jenkins -y
     9  sudo systemctl start jenkins
@@ -11,10 +14,9 @@
    11  sudo systemctl status jenkins
    12  cat /var/lib/jenkins/secrets/initialAdminPassword
    13  yum install git -y
-   14  wget https://dlcdn.apache.org/maven/maven-3/3.9.0/binaries/apache-maven-3.9.0-bin.zip
-   15  ls
-   16  rm -rf apache-maven-3.9.0-bin.zip 
-   17  cd /opt
+   14  yum install java-1.8* -y
+   15  sudo update-alternatives --config 'java'
+   16  ls /usr/lib/jvm
    18  wget https://dlcdn.apache.org/maven/maven-3/3.9.0/binaries/apache-maven-3.9.0-bin.zip
    19  unzip apache-maven-3.9.0-bin.zip 
    20  rm -rf apache-maven-3.9.0-bin.zip
@@ -22,8 +24,4 @@
    22  vi ~/.bash_profile
    23  source ~/.bash_profile
    24  mvn -version
-   25  yum install java-1.8* -y
-   26  mvn -version
-   27  sudo update-alternatives --config 'java'
-   28  ls /usr/lib/jvm
-   29  cd
+  
