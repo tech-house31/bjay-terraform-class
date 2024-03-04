@@ -13,4 +13,6 @@
    13  useradd sonar
    14  passwd sonar
    15  chown -R sonar:sonar /opt/sonar8
+   16  su - sonar
    16  cd /opt/sonar8/bin/linux-x86-64/
+   17 ./sonar.sh start, status, stop
